@@ -1,8 +1,15 @@
 package net.torchednova.nnindustextras;
 
+import com.alessandro.astages.capability.PlayerStage;
+import com.alessandro.astages.util.AStagesUtil;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
+
+import net.torchednova.nnindustextras.WebSocketController;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -29,6 +36,9 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import com.simibubi.create.AllItems;
+
+import java.beans.EventHandler;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(NNIndustExtras.MODID)
@@ -48,12 +58,19 @@ public class NNIndustExtras {
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
 
+        NeoForge.EVENT_BUS.addListener(WebSocketController::onServerStarting);
+        NeoForge.EVENT_BUS.addListener(AEStageCheck::onPatternWrite);
+
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+
+
     }
+
 
     private void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
@@ -68,5 +85,19 @@ public class NNIndustExtras {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("HELLO from server starting");
+
+    }
+
+    @SubscribeEvent
+    public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+
+        Player ent = (Player) event.getEntity();
+        PlayerStage ps = new PlayerStage(ent);
+
+        if (AStagesUtil.hasStage(ent, "first"))
+        {
+
+        }
+
     }
 }
