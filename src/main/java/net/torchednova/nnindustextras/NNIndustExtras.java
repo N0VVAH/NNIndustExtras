@@ -4,12 +4,13 @@ import com.alessandro.astages.capability.PlayerStage;
 import com.alessandro.astages.util.AStagesUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.torchednova.nnindustextras.WebSocketController;
+import net.torchednova.nnindustextras.ItemsStageController;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -67,8 +68,7 @@ public class NNIndustExtras {
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
-
-
+        ItemsStageController.init();
     }
 
 
@@ -90,14 +90,6 @@ public class NNIndustExtras {
 
     @SubscribeEvent
     public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-
-        Player ent = (Player) event.getEntity();
-        PlayerStage ps = new PlayerStage(ent);
-
-        if (AStagesUtil.hasStage(ent, "first"))
-        {
-
-        }
 
     }
 }

@@ -11,12 +11,14 @@ import appeng.crafting.execution.ExecutingCraftingJob;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import net.torchednova.nnindustextras.ItemsStageController;
 
 
 import static net.torchednova.nnindustextras.NNIndustExtras.LOGGER;
@@ -50,12 +52,11 @@ class CraftingCpuSubmitMixin {
 
             ResourceLocation itemId = plan.finalOutput().what().getId();
 
-            //ResourceLocation itemId =
-                    //BuiltInRegistries.ITEM.getKey(output.getItem());
+            LOGGER.info(itemId.toString());
 
             if (itemId == null) return;
 
-            if (itemId.toString().equals("minecraft:oak_planks")) {
+            if (ItemsStageController.unlocked(itemId.toString(), player)) {
 
                 serverPlayer.displayClientMessage(
                         Component.literal(
