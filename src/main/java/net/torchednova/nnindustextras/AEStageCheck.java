@@ -28,7 +28,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import com.simibubi.create.AllItems;
 import appeng.items.*;
 import appeng.crafting.pattern.*;
-import appeng.me.service.CraftingService;
 
 import static net.torchednova.nnindustextras.NNIndustExtras.LOGGER;
 
@@ -36,8 +35,9 @@ public class AEStageCheck {
 
     @SubscribeEvent
     public static void onPatternWrite(PlayerEvent.ItemCraftedEvent event) {
-        LOGGER.info("here");
         Player player = event.getEntity();
+
+        //LOGGER.info(player.getName().toString());
 
         ItemStack stack = event.getCrafting();
         if (stack == null || stack.isEmpty()) return;
@@ -47,7 +47,7 @@ public class AEStageCheck {
 
 
         ResourceLocation id = BuiltInRegistries.ITEM.getKey((item));
-        LOGGER.info(id.toString());
+        //LOGGER.info(id.toString());
 
         if (item.getClass().getPackageName().equals("AE2:pattern"))
         {
