@@ -52,7 +52,7 @@ class CraftingCpuSubmitMixin {
 
             ResourceLocation itemId = plan.finalOutput().what().getId();
 
-            LOGGER.info(itemId.toString());
+            //LOGGER.info(itemId.toString());
 
             if (itemId == null) return;
 

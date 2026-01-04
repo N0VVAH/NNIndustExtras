@@ -4,7 +4,8 @@
   "package": "net.torchednova.nnindustextras.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "CraftingCpuSubmitMixin"
+    "CraftingCpuSubmitMixin",
+    "MekanismCrafterMixin"
   ],
   "injectors": {
     "defaultRequire": 1
