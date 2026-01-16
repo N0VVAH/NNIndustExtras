@@ -5,7 +5,11 @@ import com.alessandro.astages.util.AStagesUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.torchednova.nnindustextras.referrals.GivesManager;
+import net.torchednova.nnindustextras.referrals.Referral;
+import net.torchednova.nnindustextras.referrals.ReferralManager;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -75,6 +79,8 @@ public class NNIndustExtras {
     private void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
+        ReferralManager.init();
+
     }
 
     // Add the example block item to the building blocks tab
@@ -85,7 +91,13 @@ public class NNIndustExtras {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("HELLO from server starting");
+        GivesManager.init(event.getServer());
+    }
 
+    @SubscribeEvent
+    public void onPlayerLoggedInEvent(PlayerEvent.PlayerLoggedInEvent event)
+    {
+        GivesManager.onPlayerJoin(event.getEntity());
     }
 
     @SubscribeEvent

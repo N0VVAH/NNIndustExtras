@@ -19,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -28,13 +27,9 @@ import static net.torchednova.nnindustextras.NNIndustExtras.LOGGER;
 @Mixin(targets = "com.tom.storagemod.block.entity.CraftingTerminalBlockEntity")
 public abstract class tomscraftingmixin {
 
-    private HashMap<Player, Inventory> inventoryViewers = new HashMap<>();
 
     @Unique
     private Player nNIndustExtras$temp;
-
-    @Shadow
-    private boolean refillingGrid;
 
     @Final
     @Shadow
@@ -43,8 +38,6 @@ public abstract class tomscraftingmixin {
     @Shadow
     private Optional<RecipeHolder<CraftingRecipe>> currentRecipe;
 
-    @Shadow
-    private WeakReference<Player> polymorphPlayer;
 
     @Inject(
             method = "createMenu",
@@ -61,9 +54,7 @@ public abstract class tomscraftingmixin {
     )
     public void nnindustextras$onCraftingMatrixChanged(CallbackInfo ci) {
         LOGGER.info("onCraftingMatrixChanged here1");
-        if (refillingGrid) {
-            return;
-        }
+
         if (nNIndustExtras$temp == null)
         {
             ci.cancel();
@@ -80,7 +71,7 @@ public abstract class tomscraftingmixin {
 
 
         LOGGER.info("onCraftingMatrixChanged here4");
-        Item item = currentRecipe.get().value().assemble(input, Minecraft.getInstance().level.registryAccess()).getItem();
+        Item item = currentRecipe.get().value().assemble(input, nNIndustExtras$temp.level().registryAccess()).getItem();
         ResourceLocation id = item.builtInRegistryHolder().key().location();
 
         LOGGER.info("ID: {}", id);
