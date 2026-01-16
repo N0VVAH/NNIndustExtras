@@ -5,8 +5,10 @@ import com.alessandro.astages.util.AStagesUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.torchednova.nnindustextras.commands.refer;
 import net.torchednova.nnindustextras.referrals.GivesManager;
 import net.torchednova.nnindustextras.referrals.Referral;
 import net.torchednova.nnindustextras.referrals.ReferralManager;
@@ -92,6 +94,12 @@ public class NNIndustExtras {
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("HELLO from server starting");
         GivesManager.init(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event)
+    {
+        refer.register(event.getDispatcher());
     }
 
     @SubscribeEvent
