@@ -10,11 +10,14 @@ import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.torchednova.nnindustextras.ItemsStageController;
 import net.torchednova.nnindustextras.NNIndustExtras;
 import net.torchednova.nnindustextras.ownertracker;
@@ -49,6 +52,9 @@ public abstract class mechanicalcraftermixin implements ownertracker {
 
 	@Shadow
 	public abstract void ejectWholeGrid();
+
+	@Shadow
+	public abstract MechanicalCrafterBlockEntity.Inventory getInventory();
 
 	@Unique
 	private String owner = null;
@@ -125,8 +131,24 @@ public abstract class mechanicalcraftermixin implements ownertracker {
 	public void tick(
 		CallbackInfo ci
 	) {
+
+		//NNIndustExtras.LOGGER.info("here---------------------------");
 		if (owner == null) return;
 		if (owner.isEmpty()) return;
+
+
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if (server == null) {
+			NNIndustExtras.LOGGER.info("server null somehow");
+			return;
+		}
+
+		if (server.getPlayerList().getPlayer(UUID.fromString(this.owner)) == null) {
+			NNIndustExtras.LOGGER.info("player not found");
+			return;
+		}
+
+
 
 		Object cheese;
 		try {
@@ -146,9 +168,11 @@ public abstract class mechanicalcraftermixin implements ownertracker {
 
 
 		ChunkPos chunkpos = new ChunkPos(pos);
-		ChunkDimPos chunkDimPos = new ChunkDimPos(Level.OVERWORLD, chunkpos);
+		ChunkDimPos chunkDimPos = new ChunkDimPos(this.levelCheck, chunkpos);
 		ClaimedChunk chunkTeam = FTBChunksAPI.api().getManager().getChunk(chunkDimPos);
-		Team playerTeam = FTBTeamsAPI.api().getManager().getTeamForPlayer(NNIndustExtras.getServer().getPlayerList().getPlayer(UUID.fromString(this.owner))).get();
+
+
+		Team playerTeam = FTBTeamsAPI.api().getManager().getTeamForPlayer(server.getPlayerList().getPlayer(UUID.fromString(this.owner))).get();
 		if (playerTeam.getMembers() == null) {
 			groupedItems = groupedItemsBeforeCraft;
 			this.ejectWholeGrid();
@@ -178,7 +202,7 @@ public abstract class mechanicalcraftermixin implements ownertracker {
 
 		//LOGGER.info(NNIndustExtras.getServer().getPlayerList().getPlayer(UUID.fromString(this.owner)).toString());
 
-		if (ItemsStageController.unlocked(is.getItem().builtInRegistryHolder().key().location().toString(), NNIndustExtras.getServer().getPlayerList().getPlayer(UUID.fromString(this.owner))))
+		if (ItemsStageController.unlocked(is.getItem().builtInRegistryHolder().key().location().toString(), server.getPlayerList().getPlayer(UUID.fromString(this.owner))))
 		{
 			LOGGER.info("not unlocked");
 			groupedItems = groupedItemsBeforeCraft;

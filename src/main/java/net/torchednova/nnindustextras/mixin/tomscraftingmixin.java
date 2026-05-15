@@ -53,27 +53,27 @@ public abstract class tomscraftingmixin {
             cancellable = true
     )
     public void nnindustextras$onCraftingMatrixChanged(CallbackInfo ci) {
-        LOGGER.info("onCraftingMatrixChanged here1");
+        //LOGGER.info("onCraftingMatrixChanged here1");
 
         if (nNIndustExtras$temp == null)
         {
             ci.cancel();
         }
-        LOGGER.info(nNIndustExtras$temp.toString());
+        //LOGGER.info(nNIndustExtras$temp.toString());
 
-        LOGGER.info("onCraftingMatrixChanged here2");
+        //LOGGER.info("onCraftingMatrixChanged here2");
         CraftingInput input = craftMatrix.asCraftInput();
 
-        LOGGER.info("onCraftingMatrixChanged here3");
+        //LOGGER.info("onCraftingMatrixChanged here3");
         if (currentRecipe.isEmpty()) {
             return;
         }
 
 
-        LOGGER.info("onCraftingMatrixChanged here4");
+        //LOGGER.info("onCraftingMatrixChanged here4");
         Item item = currentRecipe.get().value().assemble(input, nNIndustExtras$temp.level().registryAccess()).getItem();
         ResourceLocation id = item.builtInRegistryHolder().key().location();
 
-        LOGGER.info("ID: {}", id);
+        //LOGGER.info("ID: {}", id);
     }
 }

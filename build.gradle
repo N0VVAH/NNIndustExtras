@@ -135,7 +135,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
     //create version
-    implementation files("libs/create-1.21.1-6.0.9.jar")
+    implementation files("libs/create-1.21.1-6.0.10.jar")
 
     //stages
     implementation files("libs/astages-1.3.0-1.21.1.jar")
@@ -153,10 +153,15 @@ dependencies {
     implementation files("libs/immersive_paintings-0.6.8.jar")
 
     //NeoLib
-    implementation files("libs/neolib-1.0.0.jar")
+    implementation files("libs/neolib-1.0.1.jar")
 
-    //NeoLib
+    //Neobanking
     implementation files("libs/neobanking-1.0.0.jar")
+
+    //Crowns
+    implementation files("libs/crowns-1.21.1-2.1.6.jar")
+
+    //crowns-1.21.1-2.1.6.jar
 
     //FTB shizz
     implementation files("libs/ftb-chunks-neoforge-2101.1.13.jar")

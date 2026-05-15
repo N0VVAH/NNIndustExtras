@@ -11,6 +11,8 @@ import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -18,14 +20,24 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -35,7 +47,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.torchednova.nnindustextras.Players.AutoPromotion;
 import net.torchednova.nnindustextras.Players.PlayerInfoController;
+import net.torchednova.nnindustextras.Players.PromotionController;
 import net.torchednova.nnindustextras.commands.*;
 import net.torchednova.nnindustextras.freeze.FreezePlayer;
 import net.torchednova.nnindustextras.referrals.GivesManager;
@@ -54,6 +68,8 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import xyz.neonetwork.neolib.textures.NeoTexture;
+import xyz.neonetwork.neolib.utilities.NeoNotify;
 
 import java.util.Optional;
 
@@ -71,6 +87,15 @@ public class NNIndustExtras {
     {
         return server;
     }
+
+    private static BlockState tsbase;
+    public static ItemStack tumble;
+
+    private static BlockState tsskybase;
+    public static ItemStack skytumble;
+
+    private static BlockState tsdarkbase;
+    public static ItemStack darktumble;
 
     private static TagKey<Block> crafter =
         TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("create", "mechanical_crafter"));
@@ -114,7 +139,14 @@ public class NNIndustExtras {
         ReferralManager.init(event.getServer());
         FreezePlayer.init();
         PlayerInfoController.init(event.getServer());
-        this.server = event.getServer();
+        PromotionController.init(event.getServer());
+        tsbase = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "small_budding_tumblestone")).defaultBlockState();
+        tumble = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "tumblestone")));
+        tsskybase = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "small_budding_sky_tumblestone")).defaultBlockState();
+        skytumble = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "sky_tumblestone")));
+        tsdarkbase = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "small_budding_black_tumblestone")).defaultBlockState();
+        darktumble = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "black_tumblestone")));
+        server = event.getServer();
     }
 
     @SubscribeEvent
@@ -123,6 +155,7 @@ public class NNIndustExtras {
         TargetDataStorage.save(event.getServer());
         TargetDataStorage.saveGives(event.getServer());
         TargetDataStorage.PlayerSave(event.getServer());
+        PromotionController.close(event.getServer());
     }
 
     @SubscribeEvent
@@ -275,6 +308,55 @@ public class NNIndustExtras {
     }
 
     @SubscribeEvent
+    public void onRightClick(PlayerInteractEvent.RightClickBlock  event)
+    {
+        //LOGGER.info("her1");
+        //LOGGER.info(event.getLevel().getBlockState(event.getPos()).getBlock().builtInRegistryHolder().getKey().location().toString());
+        if (event.getLevel().getBlockState(event.getPos()).getBlock().builtInRegistryHolder().getKey().location().toString().equals("cobblemon:tumblestone_cluster"))
+        {
+            //LOGGER.info("her2");
+            //event.getLevel().setBlock(event.getPos(), tsbase, 3);
+            BlockState newState = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "small_budding_tumblestone")).defaultBlockState();
+            BlockState state = event.getLevel().getBlockState(event.getPos());
+            newState = newState.setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING));
+            event.getLevel().setBlock(event.getPos(), newState, Block.UPDATE_ALL);
+
+            Block.popResource(event.getLevel(), event.getPos(),  new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "tumblestone"))));
+        }
+
+        if (event.getLevel().getBlockState(event.getPos()).getBlock().builtInRegistryHolder().getKey().location().toString().equals("cobblemon:sky_tumblestone_cluster"))
+        {
+            //LOGGER.info("her2");
+            //event.getLevel().setBlock(event.getPos(), tsbase, 3);
+            BlockState newState = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "small_budding_sky_tumblestone")).defaultBlockState();
+            BlockState state = event.getLevel().getBlockState(event.getPos());
+            newState = newState.setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING));
+            event.getLevel().setBlock(event.getPos(), newState, Block.UPDATE_ALL);
+
+            Block.popResource(event.getLevel(), event.getPos(),  new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "sky_tumblestone"))));
+        }
+
+        if (event.getLevel().getBlockState(event.getPos()).getBlock().builtInRegistryHolder().getKey().location().toString().equals("cobblemon:black_tumblestone_cluster"))
+        {
+            //LOGGER.info("her2");
+            //event.getLevel().setBlock(event.getPos(), tsbase, 3);
+            BlockState newState = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "small_budding_black_tumblestone")).defaultBlockState();
+            BlockState state = event.getLevel().getBlockState(event.getPos());
+            newState = newState.setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING));
+            event.getLevel().setBlock(event.getPos(), newState, Block.UPDATE_ALL);
+
+            Block.popResource(event.getLevel(), event.getPos(),  new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("cobblemon", "black_tumblestone"))));
+        }
+    }
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static BlockState copyProperty(BlockState from,
+                                           BlockState to,
+                                           Property property) {
+        return to.setValue(property, from.getValue(property));
+    }
+
+
+    @SubscribeEvent
     public void onEntityDamaged(LivingIncomingDamageEvent event)
     {
         if (FreezePlayer.frozen == null || FreezePlayer.frozen.isEmpty()) return;
@@ -301,6 +383,7 @@ public class NNIndustExtras {
         neouuid.register(event.getDispatcher());
         BuyStore.register(event.getDispatcher());
         StoreManagement.register(event.getDispatcher());
+        NeoAutoPromotion.register(event.getDispatcher());
     }
 
     @SubscribeEvent
@@ -309,6 +392,17 @@ public class NNIndustExtras {
         GivesManager.onPlayerJoin(event.getEntity());
         PlayerInfoController.checkIfChangedName(event.getEntity());
         PlayerInfoController.checkIfStoreTimedOut(event.getEntity());
+        AutoPromotion.checkPlayerForPromotion(event.getEntity());
 
+        TargetDataStorage.PlayerSave(event.getEntity().getServer());
+
+    }
+
+    @SubscribeEvent
+    public void onPlayerLoggedOutEvent(PlayerEvent.PlayerLoggedOutEvent event)
+    {
+        PlayerInfoController.playerLoggedOut(event.getEntity());
+
+        TargetDataStorage.PlayerSave(event.getEntity().getServer());
     }
 }

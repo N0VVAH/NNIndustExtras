@@ -82,36 +82,41 @@ public class PlayerInfoController {
 	{
 		if (!p.hasPermissions(2)) return;
 
-		for (int i = 0; i < Players.size(); i++)
+		PlayerInfo pi = get(p);
+
+		if (pi.ownStore != -1)
 		{
-			if (Players.get(i).ownStore != -1)
+			if (pi.lastSeen +  2592000 <= System.currentTimeMillis())
 			{
-				if (Players.get(i).lastSeen +  2592000 <= System.currentTimeMillis() / 1000)
-				{
-					NeoNotify.sendChat((ServerPlayer) p, "Player: " + Players.get(i) + " Who Owns Store " + Players.get(i).ownStore + " has not been seen for 30 days");
-				}
+				NeoNotify.sendChat((ServerPlayer) p, "Player: " + pi.name + " Who Owns Store " + pi.ownStore + " has not been seen for 30 days");
 			}
 		}
+
+		pi.lastSeen = System.currentTimeMillis();
 	}
 
 	public static void checkIfChangedName(Player p)
 	{
-		for (int i = 0; i < Players.size(); i++)
+		PlayerInfo pi = get(p);
+
+		if (Objects.equals(pi.uuid, p.getStringUUID()))
 		{
-			if (Objects.equals(Players.get(i).uuid, p.getStringUUID()))
+			if (!p.getScoreboardName().equals(pi.name))
 			{
-				if (!p.getScoreboardName().equals(Players.get(i).name))
-				{
-					Players.get(i).name = p.getScoreboardName();
-					return;
-				}
-				else
-				{
-					return;
-				}
+				pi.name = p.getScoreboardName();
 			}
 		}
 	}
+
+	public static void playerLoggedOut(Player p)
+	{
+		PlayerInfo pi = PlayerInfoController.get(p);
+		if (pi.timePlayed <= 0) pi.timePlayed = 0;
+		pi.timePlayed = pi.timePlayed + (System.currentTimeMillis() - pi.lastSeen);
+		pi.lastSeen = System.currentTimeMillis();
+	}
+
+
 
 
 

@@ -5,6 +5,8 @@ import com.google.common.reflect.TypeToken;
 import net.minecraft.server.MinecraftServer;
 import net.torchednova.nnindustextras.Players.PlayerInfo;
 import net.torchednova.nnindustextras.Players.PlayerInfoController;
+import net.torchednova.nnindustextras.Players.PromotionController;
+import net.torchednova.nnindustextras.Players.Promotions;
 import net.torchednova.nnindustextras.freeze.FreezePlayer;
 import net.torchednova.nnindustextras.referrals.Gives;
 import net.torchednova.nnindustextras.referrals.GivesManager;
@@ -27,6 +29,7 @@ public class TargetDataStorage {
     private static final Type LIST_TYPE_GIVES = new TypeToken<List<Gives>>() {}.getType();
     private static final Type TYPE_String = new TypeToken<String>() {}.getType();
     private static final Type TYPE_LIST_PI = new TypeToken<List<PlayerInfo>>() {}.getType();
+    private static final Type TYPE_LIST_PROM = new TypeToken<List<Promotions>>() {}.getType();
 
     public static void save(MinecraftServer server)
     {
@@ -192,6 +195,50 @@ public class TargetDataStorage {
         } catch (IOException e) {
             e.printStackTrace();
             return new ArrayList<PlayerInfo>();
+        }
+    }
+
+    public static void PromSave(MinecraftServer server)
+    {
+        try{
+            Path file = ModDataPath.getPromDataFile(server);
+
+            Path parent = file.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+
+            String json = ModJson.GSON.toJson(PromotionController.promList);
+            Files.writeString(file, json);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<Promotions> PromLoad(MinecraftServer server)
+    {
+        try{
+            Path file = ModDataPath.getPromDataFile(server);
+
+            if (Files.exists(file) == false)
+            {
+                //LOGGER.info("no file found");
+                PromSave(server);
+            }
+
+            String json = Files.readString(file);
+
+            //LOGGER.info(json);
+
+            ArrayList<Promotions> data = ModJson.GSON.fromJson(json, TYPE_LIST_PROM);
+
+            return data != null ? data : new ArrayList<Promotions>();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<Promotions>();
         }
     }
 

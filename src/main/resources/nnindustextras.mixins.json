@@ -12,7 +12,8 @@
     "ae2BlockInserts",
     "immersivepaintingmixin",
     "mechanicalcraftermixin",
-    "gridmixin"
+    "gridmixin",
+    "crownskneecapping"
   ],
   "injectors": {
     "defaultRequire": 1

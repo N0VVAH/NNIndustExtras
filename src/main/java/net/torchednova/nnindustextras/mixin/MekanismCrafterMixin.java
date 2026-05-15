@@ -39,29 +39,21 @@ public abstract class MekanismCrafterMixin {
         if (!this.lastOutputStack.isEmpty())
         {
             if(this instanceof ISecurityTile security) {
-                LOGGER.info("Here1");
                 if (((ISecurityTile) this).getOwnerUUID() == null) return;
-                LOGGER.info("Here2");
                 LOGGER.info(security.getOwnerName());
 
                 Level level = ((BlockEntity) (Object) this).getLevel();
-                LOGGER.info("Here3");
 
                 if (level.getServer() == null) return;
-                LOGGER.info("Here4");
 
                 MinecraftServer server = level.getServer();
-                LOGGER.info("Here5");
 
                 Player player = getPlayerFromUUID(server, security.getOwnerUUID());
-                LOGGER.info("Here6");
 
                 ResourceLocation id = this.lastOutputStack.getItem().builtInRegistryHolder().key().location();
-                LOGGER.info("Here7");
                 LOGGER.info(id.toString() + " | " + player.toString());
 
                 if (ItemsStageController.unlocked(id.toString(), player)) {
-                    LOGGER.info("Here8");
 
                     // STOP Mekanism from calculating the recipe
                     this.lastOutputStack = ItemStack.EMPTY;
